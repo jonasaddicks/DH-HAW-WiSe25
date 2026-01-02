@@ -1,9 +1,9 @@
-from sqlalchemy.orm import Session
-from typing import Optional
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_
+from typing import Optional, List
 from uuid import UUID
-
-from backend.app.model import Comment
 from backend.app.model.user import User
+from backend.app.model.userPrefs import UserPrefs
 
 
 class UserRepository:
@@ -54,21 +54,6 @@ class UserRepository:
         """
         return self.db.query(User).filter(User.user_id == user_id).first()
 
-    def get_by_email(self, email: str) -> Optional[User]:
-        """
-        Holt User anhand der Email
-
-        Args:
-            email: Email-Adresse
-
-        Returns:
-            User oder None wenn nicht gefunden
-        """
-        return self.db.query(User) \
-            .filter(User.email == email) \
-            .first()
-
-
     def count(self) -> int:
         """
         Zählt alle User
@@ -78,7 +63,7 @@ class UserRepository:
         """
         return self.db.query(User).count()
 
-    # ═══════════════════════════════════════════════════════════════
+        # ═══════════════════════════════════════════════════════════════
     # UPDATE
     # ═══════════════════════════════════════════════════════════════
 
@@ -92,6 +77,11 @@ class UserRepository:
 
         Returns:
             Updated User
+
+        Example:
+            user = repo.get_by_id(user_id)
+            user.display_name = "Neuer Name"
+            repo.update(user)
         """
         self.db.commit()
         self.db.refresh(user)
@@ -115,8 +105,7 @@ class UserRepository:
         self.db.delete(user)
         self.db.commit()
 
-
-    # ═══════════════════════════════════════════════════════════════
+        # ═══════════════════════════════════════════════════════════════
     # EXISTS / VALIDATION
     # ═══════════════════════════════════════════════════════════════
 
