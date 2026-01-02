@@ -4,8 +4,7 @@ services:
     image: caddy:2.10.2
     restart: unless-stopped
     ports:
-      - "localhost:80:80"
-      - "localhost:443:443"
+      - "127.0.0.1:80:80"
     volumes:
       - ./frontend/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./frontend/site:/srv:ro
@@ -14,16 +13,6 @@ services:
     depends_on:
       - backend_fastapi
 
-  frontend_tileserver:
-    container_name: frontend_tileserver
-    image: maptiler/tileserver-gl:v5.4.0
-    restart: unless-stopped
-    ports:
-      - "localhost:8082:80"
-    volumes:
-      - ./data/external_data/tiles_data:/data:ro
-
-
 
   backend_fastapi:
     container_name: backend_fastapi
@@ -31,39 +20,13 @@ services:
     restart: on-failure
     environment:
       DATABASE_URL: "postgres://postgres_user:public_prototype@database_postgresql:5432/rheumamap"
-      OSRM_URL: "http://routing_osrm:5000"
-      OVERPASS_URL: "http://datarequest_overpass:80/api/interpreter"
-      TILESERVER_URL: "http://frontend_tileserver:80"
+      ORS_URL: "TODO"
+      OVERPASS_URL: "TODO"
+      TILESERVER_URL: "TODO"
     volumes:
       - ./backend:/app
-    ports:
-      - "localhost:8000:8000"
     depends_on:
       - database_postgresql
-      - routing_osrm
-      - datarequest_overpass
-
-
-
-  routing_osrm:
-    container_name: routing_osrm
-    image: osrm/osrm-backend:v5.25.0
-    volumes:
-      - ./data/external_data/osm_data:/data
-    ports:
-      - "localhost:5000:5000"
-
-  datarequest_overpass:
-    container_name: datarequest_overpass
-    image: wiktorn/overpass-api:0.7.62
-    restart: unless-stopped
-    ports:
-      - "localhost:12345:80"
-    volumes:
-      - overpass_db:/db
-    environment:
-      OVERPASS_META: "true"
-
 
 
   database_postgresql:
@@ -77,24 +40,22 @@ services:
       - database_data:/var/lib/postgresql
       - ./scripts/db-init:/docker-entrypoint-initdb.d:ro
 
+
   database_admin:
     container_name: database_admin
     image: dpage/pgadmin4:9.10
     ports:
-      - "localhost:8080:80"
+      - "127.0.0.1:8080:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@local
       PGADMIN_DEFAULT_PASSWORD: admin
     depends_on:
       - database_postgresql
 
-
-
 volumes:
-  caddy_data
-  caddy_config
-  overpass_db
-  database_data
+  caddy_data:
+  caddy_config:
+  database_data:
 
 networks:
   default:
