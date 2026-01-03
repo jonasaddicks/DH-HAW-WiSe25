@@ -1,12 +1,7 @@
-http://localhost:80 {
-    bind 127.0.0.1
-
+:80 {
     root * /srv
-
     encode zstd gzip
-
     templates
-
     file_server
 
     header {
