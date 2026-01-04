@@ -47,8 +47,10 @@ services:
     ports:
       - "127.0.0.1:8080:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@local
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
     depends_on:
       - database_postgresql
 
