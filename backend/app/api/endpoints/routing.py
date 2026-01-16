@@ -1,15 +1,21 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
-from backend.app.service import routing_service
+from app.dtos import RoutingResponse
+from app.service import RoutingService
 
 router = APIRouter()
 
-router.get("/routing/start_navigation/{route_id}")
-def start_navigation(route_id):
-    routing_service.start_navigation(route_id)
-    return {}
+@router.get("/route", response_model=list[RoutingResponse])
+async def calculate_routes(
+    start_lat: float = Query(..., description="start latitude"),
+    start_lng: float = Query(..., description="start longitude"),
+    end_lat: float = Query(..., description="end latitude"),
+    end_lng: float = Query(..., description="end longitude")
+):
+    """
+    Calculates possible routes from given start to given end coordinates.
+    """
 
-router.post("/routing/route")
-def make_route(start, end):
-    routing_service.get_route(start, end)
-    return {}
+    start = (start_lat, start_lng)
+    end = (end_lat, end_lng)
+    return RoutingService.calculate_routes(start, end)

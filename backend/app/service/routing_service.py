@@ -1,5 +1,5 @@
-def start_navigation(route_id):
-    return None
-
-def get_route(start,end):
-    return None
+def calculate_routes(
+        start: (float, float),
+        end: (float, float)
+):
+    pass

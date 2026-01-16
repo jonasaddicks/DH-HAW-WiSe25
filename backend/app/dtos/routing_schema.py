@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 
-class CommentResponse(BaseModel):
+class RoutingResponse(BaseModel):
     pass
