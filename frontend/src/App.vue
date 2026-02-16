@@ -10,51 +10,74 @@ export default {
     LTileLayer,
   },
   methods: {
-    async search() {
-      const response = await fetch('http://localhost:3000/', {
-        method: "POST",
-        body: JSON.stringify({
-          "search": this.searchQuery
-        })
-      })
-      if (response.ok) {
-        console.log(await response.json())
-      } else {
-        console.log("Failure when posting search query: " + response.status)
+    async loadComments() {
+      try {
+        // Backend API aufrufen mit der Karten-Mittelposition
+        const lat = this.center[0];
+        const lng = this.center[1];
+        const radius = this.searchRadius;
+        
+        const response = await fetch(
+          `http://localhost:8000/comments/at?lat=${lat}&lng=${lng}&radius=${radius}`
+        );
+        
+        if (response.ok) {
+          this.comments = await response.json();
+          console.log("Kommentare geladen:", this.comments);
+        } else {
+          console.error("Fehler beim Laden:", response.status);
+        }
+      } catch (error) {
+        console.error("API-Fehler:", error);
       }
+    },
+    async search() {
+      // Suche mit den eingegebenen Worten (für später)
+      await this.loadComments();
     }
   },
   async mounted() {
-    const response = await fetch('http://localhost:3000/markers')
-    this.markers = await response.json()
-    this.markers.forEach(value => {
-      console.log(value.lat)
-    })
+    // Beim Start: Kommentare um Hamburg laden
+    await this.loadComments();
   },
   data() {
     return {
       zoom: 16,
-      markers: [],
-      searchQuery: ''
+      center: [53.556090564417296, 10.021469080512393],
+      comments: [],
+      searchQuery: '',
+      searchRadius: 2000  // 2 km Radius
     };
   },
 };
 </script>
 
 <template>
-  <input type="text" v-model="searchQuery" placeholder="Suche...">
-  <button @click="search">Suchen</button>
-  <div style="height:600px; width:800px">
-    <l-map ref="map" v-model:zoom="zoom" :center="[53.556090564417296, 10.021469080512393]">
-      <l-tile-layer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          layer-type="base"
-          name="OpenStreetMap">
-      </l-tile-layer>
-      <l-marker v-for="marker in markers" :lat-lng="[marker.lat, marker.lon]">
-        <l-popup> {{ marker.desc }} </l-popup>
-      </l-marker>
-    </l-map>
+  <div>
+    <div style="margin-bottom: 10px;">
+      <input type="text" v-model="searchQuery" placeholder="Suche...">
+      <button @click="search">Suchen</button>
+      <button @click="loadComments">Alle Kommentare laden</button>
+    </div>
+    <div style="height:600px; width:800px">
+      <l-map ref="map" v-model:zoom="zoom" :center="center">
+        <l-tile-layer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            layer-type="base"
+            name="OpenStreetMap">
+        </l-tile-layer>
+        <!-- Kommentare als Marker auf der Karte -->
+        <l-marker v-for="comment in comments" :key="comment.id" :lat-lng="[comment.lat, comment.lng]">
+          <l-popup>
+            <div>
+              <strong>{{ comment.user }}</strong><br>
+              <em>{{ comment.created_at }}</em><br>
+              <p>{{ comment.text }}</p>
+            </div>
+          </l-popup>
+        </l-marker>
+      </l-map>
+    </div>
   </div>
 </template>
 

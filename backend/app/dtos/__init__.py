@@ -1,4 +1,4 @@
 from .comment_schema import CommentResponse
-from .routing_schema import RoutingResponse
+from .routing_schema import RoutingResponse, RouteSegment
 
-__all__ = ['CommentResponse', 'RoutingResponse']
+__all__ = ['CommentResponse', 'RoutingResponse', 'RouteSegment']

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 
 from app.dtos import CommentResponse
-from app.service import CommentService
+from app.service.comment_service import get_comments_at as get_comments_service
 
 router = APIRouter()
 
@@ -15,4 +15,4 @@ async def get_comments_at(
     Collects all available comments around a given point in a given radius.
     """
 
-    return CommentService.get_comments_at(lat, lng, radius)
+    return get_comments_service(lat, lng, radius)

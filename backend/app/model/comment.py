@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, ForeignKey, DateTime, BigInteger, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from backend.app.database import Base
+from app.database import Base
 
 class Comment(Base):
     __tablename__ = "comment"

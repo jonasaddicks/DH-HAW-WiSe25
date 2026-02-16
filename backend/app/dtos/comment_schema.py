@@ -1,5 +1,14 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class CommentResponse(BaseModel):
-    pass
+    id: int
+    text: str
+    lat: float
+    lng: float
+    user: str
+    created_at: str
+    
+    class Config:
+        from_attributes = True
