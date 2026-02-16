@@ -6,20 +6,24 @@ import math
 MOCK_ROUTES = [
     {
         "route_id": 1,
-        "name": "Direkter Weg (Route 1)",
+        "name": "Schattiger Weg",
         "distance_m": 450,
         "duration_min": 6,
         "difficulty": "easy",
         "waypoints": [
-            {"lat": 53.556090, "lng": 10.021469},
-            {"lat": 53.556200, "lng": 10.021600},
-            {"lat": 53.556350, "lng": 10.021900},
-            {"lat": 53.556450, "lng": 10.022100},
+            {"lat": 53.556301, "lng": 10.021649},
+            {"lat": 53.556305, "lng": 10.021653},
+            {"lat": 53.556008, "lng": 10.021997},
+            {"lat": 53.555751,"lng": 10.022365},
+            {"lat": 53.555418, "lng": 10.021952},
+            {"lat": 53.555416, "lng":10.021726},
+            {"lat": 53.554817, "lng": 10.020319},
+
         ]
     },
     {
         "route_id": 2,
-        "name": "Barrierefreier Weg",
+        "name": "Rollstuhl-freundlicher Weg",
         "distance_m": 720,
         "duration_min": 10,
         "difficulty": "easy",
@@ -40,9 +44,7 @@ MOCK_ROUTES = [
         "duration_min": 5,
         "difficulty": "medium",
         "waypoints": [
-            {"lat": 53.556090, "lng": 10.021469},
-            {"lat": 53.556250, "lng": 10.021750},
-            {"lat": 53.556450, "lng": 10.022100},
+            
         ]
     },
 ]
