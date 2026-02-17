@@ -121,22 +121,9 @@ export default {
 </script>
 
 <template>
-  <div>
-    <!-- Info Panel -->
-    <div style="margin-bottom: 10px; padding: 10px; background-color: #f5f5f5;">
-      <h3>RheumaMap Routing Demo</h3>
-      <p v-if="routes.length === 0 && !routePointsSet.start">👉 Klick auf die Karte um einen Startpunkt zu setzen</p>
-      <p v-else-if="routes.length === 0 && !routePointsSet.end">👉 Klick auf die Karte um einen Endpunkt zu setzen</p>
-      <p v-else-if="routes.length > 0">✅ Routen berechnet! Hovere über die Linien oder klick sie an.</p>
-      
-      <div v-if="routePointsSet.start && routePointsSet.end" style="margin-top: 10px; font-size: 12px;">
-        Start: [{{ startLat.toFixed(4) }}, {{ startLng.toFixed(4) }}]<br>
-        End: [{{ endLat.toFixed(4) }}, {{ endLng.toFixed(4) }}]
-      </div>
-    </div>
-
+  <div class="mobile-shell">
     <!-- Karte -->
-    <div style="height:700px; width:100%; position: relative;">
+    <div class="map-wrapper">
       <l-map 
         ref="map" 
         v-model:zoom="zoom" 
@@ -149,6 +136,10 @@ export default {
             layer-type="base"
             name="OpenStreetMap">
         </l-tile-layer>
+        <!-- Suchleiste -->
+        <div class="search-bar">
+          <input type="text" placeholder="Suche" />
+        </div>
 
         <!-- Kommentare als Marker -->
         <l-marker v-for="comment in comments" :key="'comment-' + comment.id" :lat-lng="[comment.lat, comment.lng]" :icon="getCommentIcon()">
@@ -189,20 +180,50 @@ export default {
         </l-marker>
       </l-map>
     </div>
-
-    <!-- Route Info -->
-    <div v-if="selectedRoute" style="margin-top: 10px; padding: 10px; background-color: #e8f4f8; border-left: 4px solid #2196F3;">
-      <h4 style="margin-top: 0;">{{ selectedRoute.name }}</h4>
-      <div style="font-size: 14px;">
-        <strong>Distanz:</strong> {{ selectedRoute.distance_m }}m<br>
-        <strong>Dauer:</strong> {{ selectedRoute.duration_min }} Minuten<br>
-        <strong>Schwierigkeit:</strong> {{ selectedRoute.difficulty }}<br>
-        <strong>Farbe:</strong> <span :style="{color: getRouteColor(selectedRoute.route_id), fontWeight: 'bold'}">●</span>
-      </div>
-    </div>
   </div>
 </template>
 
 <style scoped>
+.mobile-shell {
+  width: 390px;
+  height: 844px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 40px;
+  box-shadow: 0 0 0 10px #222, 0 20px 60px rgba(0,0,0,0.5);
+}
 
+.map-wrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+.map-wrapper :deep(.leaflet-container) {
+  height: 100%;
+  width: 100%;
+}
+
+.map-wrapper :deep(.leaflet-top.leaflet-left) {
+  top: auto;
+  bottom: 10px;
+  left: auto;
+  right: 10px;
+}
+.search-bar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.search-bar input {
+  width: 80%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
 </style>
