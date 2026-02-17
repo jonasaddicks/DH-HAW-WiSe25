@@ -136,9 +136,26 @@ export default {
             layer-type="base"
             name="OpenStreetMap">
         </l-tile-layer>
+
         <!-- Suchleiste -->
         <div class="search-bar">
           <input type="text" placeholder="Suche" />
+          <button class="map-btn">🔊</button>
+        </div>
+
+        <!-- Standort-Button -->
+        <div class="leaflet-top leaflet-right" style="pointer-events: auto;">
+          <div class="leaflet-control">
+            <button class="map-btn">🎯</button>
+          </div>
+        </div>
+
+        <!-- Buttons unten links -->
+        <div class="leaflet-bottom leaflet-left" style="pointer-events: auto;">
+          <div class="leaflet-control">
+            <button class="map-btn">📝</button>
+            <button class="map-btn">🏠</button>
+          </div>
         </div>
 
         <!-- Kommentare als Marker -->
@@ -172,11 +189,9 @@ export default {
 
         <!-- Route Start/End Marker für alle Routen -->
         <l-marker v-for="route in routes" :key="'route-start-' + route.route_id" :lat-lng="[route.start.lat, route.start.lng]">
-          <l-popup>⭐ START: {{ route.name }}</l-popup>
         </l-marker>
 
         <l-marker v-for="route in routes" :key="'route-end-' + route.route_id" :lat-lng="[route.end.lat, route.end.lng]" :icon="getEndIcon()">
-          <l-popup>⭐ END: {{ route.name }}</l-popup>
         </l-marker>
       </l-map>
     </div>
@@ -210,20 +225,47 @@ export default {
   left: auto;
   right: 10px;
 }
+.map-wrapper :deep(.leaflet-top.leaflet-right) {
+  top: auto;
+  bottom: 152px; /* über den Zoom-Buttons */
+}
+.map-wrapper :deep(.leaflet-control-zoom-in),
+.map-wrapper :deep(.leaflet-control-zoom-out) {
+  width: 65px !important;
+  height: 65px !important;
+  line-height: 65px !important;
+  font-size: 28px !important;
+}
 .search-bar {
   position: absolute;
   top: 10px;
   left: 10px;
   right: 10px;
   z-index: 1000;
+  display: flex;
+  gap: 8px;
 }
 
 .search-bar input {
-  width: 80%;
+  flex: 1;  /* nimmt den verbleibenden Platz ein, Button bestimmt seine eigene Größe */
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.map-btn {
+  width: 68px;
+  height: 68px;
+  background: white;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+  font-size: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
 </style>
