@@ -1,5 +1,6 @@
 <script>
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import {LMap, LMarker, LPopup, LTileLayer, LPolyline} from "@vue-leaflet/vue-leaflet";
 
 export default {
@@ -72,6 +73,24 @@ export default {
     getRouteColor(routeId) {
       const colors = ['blue', 'purple', 'green'];
       return colors[routeId - 1] || 'blue';
+    },
+    getCommentIcon() {
+      return L.divIcon({
+        html: '<span style="font-size: 36px; line-height: 1;">📍</span>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+        popupAnchor: [0, -36],
+        className: 'comment-icon'
+      });
+    },
+    getEndIcon() {
+      return L.divIcon({
+        html: '<span style="font-size: 36px; line-height: 1;">🏴</span>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],  // halbe Breite, volle Höhe → Spitze zeigt auf Punkt
+        popupAnchor: [0, -36],
+        className: 'end-icon'
+      });
     }
   },
   async mounted() {
@@ -132,7 +151,7 @@ export default {
         </l-tile-layer>
 
         <!-- Kommentare als Marker -->
-        <l-marker v-for="comment in comments" :key="'comment-' + comment.id" :lat-lng="[comment.lat, comment.lng]">
+        <l-marker v-for="comment in comments" :key="'comment-' + comment.id" :lat-lng="[comment.lat, comment.lng]" :icon="getCommentIcon()">
           <l-popup>
             <div style="font-size: 12px;">
               <strong>{{ comment.user }}</strong><br>
@@ -159,14 +178,14 @@ export default {
           </l-popup>
         </l-polyline>
 
-        <!-- Start Marker (grün) -->
-        <l-marker v-if="routePointsSet.start" :lat-lng="[startLat, startLng]">
-          <l-popup>🟢 Start</l-popup>
+
+        <!-- Route Start/End Marker für alle Routen -->
+        <l-marker v-for="route in routes" :key="'route-start-' + route.route_id" :lat-lng="[route.start.lat, route.start.lng]">
+          <l-popup>⭐ START: {{ route.name }}</l-popup>
         </l-marker>
 
-        <!-- End Marker (rot) -->
-        <l-marker v-if="routePointsSet.end" :lat-lng="[endLat, endLng]">
-          <l-popup>🔴 End</l-popup>
+        <l-marker v-for="route in routes" :key="'route-end-' + route.route_id" :lat-lng="[route.end.lat, route.end.lng]" :icon="getEndIcon()">
+          <l-popup>⭐ END: {{ route.name }}</l-popup>
         </l-marker>
       </l-map>
     </div>
@@ -175,10 +194,10 @@ export default {
     <div v-if="selectedRoute" style="margin-top: 10px; padding: 10px; background-color: #e8f4f8; border-left: 4px solid #2196F3;">
       <h4 style="margin-top: 0;">{{ selectedRoute.name }}</h4>
       <div style="font-size: 14px;">
-        📏 <strong>Distanz:</strong> {{ selectedRoute.distance_m }}m<br>
-        ⏱️ <strong>Dauer:</strong> {{ selectedRoute.duration_min }} Minuten<br>
-        📊 <strong>Schwierigkeit:</strong> {{ selectedRoute.difficulty }}<br>
-        🔴 <strong>Farbe:</strong> <span :style="{color: getRouteColor(selectedRoute.route_id), fontWeight: 'bold'}">●</span>
+        <strong>Distanz:</strong> {{ selectedRoute.distance_m }}m<br>
+        <strong>Dauer:</strong> {{ selectedRoute.duration_min }} Minuten<br>
+        <strong>Schwierigkeit:</strong> {{ selectedRoute.difficulty }}<br>
+        <strong>Farbe:</strong> <span :style="{color: getRouteColor(selectedRoute.route_id), fontWeight: 'bold'}">●</span>
       </div>
     </div>
   </div>

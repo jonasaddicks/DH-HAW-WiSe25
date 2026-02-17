@@ -15,6 +15,8 @@ class RoutingResponse(BaseModel):
     distance_m: float
     duration_min: int
     difficulty: str  # 'easy', 'medium', 'hard'
+    start: RouteSegment
+    end: RouteSegment
     waypoints: List[RouteSegment]
     
     class Config:
