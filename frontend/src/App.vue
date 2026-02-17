@@ -209,6 +209,15 @@ export default {
   box-shadow: 0 0 0 10px #222, 0 20px 60px rgba(0,0,0,0.5);
 }
 
+@media (max-width: 430px) {
+  .mobile-shell {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 .map-wrapper {
   flex: 1;
   overflow: hidden;
