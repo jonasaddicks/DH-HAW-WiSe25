@@ -39,7 +39,7 @@ MOCK_COMMENTS = [
 ]
 
 
-def get_comments_at(
+def get_comments_at_service(
         lat: float,
         lng: float,
         radius: float = 1000.0

@@ -61,7 +61,7 @@ MOCK_ROUTES = [
 ]
 
 
-def calculate_routes(
+def calculate_routes_service(
         start: tuple[float, float],
         end: tuple[float, float]
 ) -> list[RoutingResponse]:

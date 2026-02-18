@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 
 from app.dtos import RoutingResponse
-from app.service.routing_service import calculate_routes as calculate_routes_service
+from app.service import RoutingService
 
 router = APIRouter()
 
@@ -18,4 +18,4 @@ async def calculate_routes(
 
     start = (start_lat, start_lng)
     end = (end_lat, end_lng)
-    return calculate_routes_service(start, end)
+    return RoutingService.calculate_routes_service(start, end)
