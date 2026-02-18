@@ -1,0 +1,17 @@
+:80 {
+    root * /srv
+    encode zstd gzip
+    templates
+    file_server
+
+    handle_path /api/* {
+        reverse_proxy backend_fastapi:8000
+    }
+
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer-when-downgrade"
+        Cache-Control "no-store, no-cache, must-revalidate"
+    }
+}

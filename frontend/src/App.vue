@@ -19,7 +19,7 @@ export default {
         const radius = this.searchRadius;
         
         const response = await fetch(
-          `http://localhost:8000/comments/at?lat=${lat}&lng=${lng}&radius=${radius}`
+          `api/comments/at?lat=${lat}&lng=${lng}&radius=${radius}`
         );
         
         if (response.ok) {
@@ -35,7 +35,7 @@ export default {
     async calculateRoutes() {
       try {
         const response = await fetch(
-          `http://localhost:8000/routing/route?start_lat=${this.startLat}&start_lng=${this.startLng}&end_lat=${this.endLat}&end_lng=${this.endLng}`
+          `api/routing/route?start_lat=${this.startLat}&start_lng=${this.startLng}&end_lat=${this.endLat}&end_lng=${this.endLng}`
         );
         
         if (response.ok) {
