@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS comment (
   comment_id serial PRIMARY KEY,
   user_id int NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, -- FOREIGN KEY -> USER
   text text NOT NULL,
-  geom geometry(Point,4326), -- LAT/LON POINT
+  geom geometry(Point,4326) NOT NULL, -- LAT/LON POINT
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

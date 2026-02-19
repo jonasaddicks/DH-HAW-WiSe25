@@ -19,8 +19,10 @@ services:
     build: ./backend
     restart: on-failure
     # ports: 8000 (defined in Dockerfile, no external access)
+    ports:
+      - "127.0.0.1:8000:8000" # Temporary for testing
     environment:
-      DATABASE_URL: "postgres://postgres_user:public_prototype@database_postgresql:5432/rheumamap"
+      DATABASE_URL: "postgresql://postgresql_user:public_prototype@database_postgresql:5432/rheumamap"
       ORS_URL: "TODO"
       OVERPASS_URL: "TODO"
       TILESERVER_URL: "TODO"
@@ -34,7 +36,7 @@ services:
     container_name: database_postgresql
     image: postgis/postgis:18-3.6
     environment:
-      POSTGRES_USER: postgres_user
+      POSTGRES_USER: postgresql_user
       POSTGRES_PASSWORD: public_prototype
       POSTGRES_DB: rheumamap
     volumes:

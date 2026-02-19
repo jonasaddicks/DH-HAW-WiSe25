@@ -6,7 +6,7 @@
             "Host": "database_postgresql",
             "Port": 5432,
             "MaintenanceDB": "rheumamap",
-            "Username": "postgres_user",
+            "Username": "postgresql_user",
             "Password": "public_prototype",
             "SSLMode": "disable"
         }
