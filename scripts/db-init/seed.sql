@@ -56,7 +56,7 @@ ON CONFLICT (user_id) DO NOTHING;
 -- EXAMPLE COMMENTS
 INSERT INTO comment (user_id, text, geom)
 VALUES
-  (1, 'Example comment from 1', ST_SetSRID(ST_MakePoint(53.556458, 10.022068), 4326)),
-  (2, 'Example comment 1 from 2', ST_SetSRID(ST_MakePoint(53.556073, 10.021971), 4326)),
-  (2, 'Example comment 2 from 2', ST_SetSRID(ST_MakePoint(53.555697, 10.020262), 4326))
+  (1, 'Example comment from 1', ST_SetSRID(ST_MakePoint(10.022068, 53.556458), 4326)),
+  (2, 'Example comment 1 from 2', ST_SetSRID(ST_MakePoint(10.021971, 53.556073), 4326)),
+  (2, 'Example comment 2 from 2', ST_SetSRID(ST_MakePoint(10.020262, 53.555697), 4326))
 ON CONFLICT (comment_id) DO NOTHING;
