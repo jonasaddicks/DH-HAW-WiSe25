@@ -8,9 +8,11 @@ class CommentResponseDTO(BaseModel):
     lng: float
     user: str
     created_at: str
-    
-    class Config:
-        from_attributes = True
+
+class CommentRequestDTO(BaseModel):
+    lat: float
+    lng: float
+    radius: float = Field(default=1000, gt=0)
 
 class CommentCreateDTO(BaseModel):
     text: str = Field(..., min_length=1, max_length=511)

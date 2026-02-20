@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session
 from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
 
-from app.dtos import CommentResponseDTO, CommentCreateDTO
+from app.dtos import CommentResponseDTO, CommentCreateDTO, CommentRequestDTO
+from app.exceptions import CommentConversionException
 from app.logging import log_error, Source
 from app.model import CommentModel
 from app.repositories import CommentRepository
@@ -45,40 +46,37 @@ MOCK_COMMENTS = [
 
 
 def get_comments_at_service(
-        lat: float,
-        lng: float,
-        radius: float = 1000.0
+        db: Session,
+        dto: CommentRequestDTO
 ) -> list[CommentResponseDTO]:
     """
-    Gibt alle Kommentare in der Nähe eines Punktes zurück (Mock-Daten).
-    
-    :param lat: Latitude des Suchpunkts
-    :param lng: Longitude des Suchpunkts
-    :param radius: Radius in Metern (ungefähr)
-    :return: Liste von Kommentaren
+    Returns a list of all comments in a specified area
     """
-    
-    # Sehr vereinfachte Distanzberechnung (nicht exakt, für POC OK)
-    # 1 Grad ≈ 111 km
-    lat_diff = abs(lat - 53.556300)
-    lng_diff = abs(lng - 10.021300)
-    max_diff = radius / 111000  # Ungefähre Umrechnung
-    
-    nearby_comments = []
-    for comment in MOCK_COMMENTS:
-        lat_dist = abs(comment["lat"] - lat)
-        lng_dist = abs(comment["lng"] - lng)
-        
-        if lat_dist <= max_diff and lng_dist <= max_diff:
-            nearby_comments.append(CommentResponseDTO(**comment))
-    
-    return nearby_comments
+    repo = CommentRepository(db)
+    rows = repo.get_comments_in_radius(dto.lng, dto.lat, dto.radius)
+
+    result: list[CommentResponseDTO] = []
+    for r in rows:
+        created = r.created_at
+        created_iso = created.isoformat() if hasattr(created, "isoformat") else str(created)
+
+        dto_out = CommentResponseDTO(
+            id=int(r.id),
+            text=r.text,
+            lat=float(r.lat),
+            lng=float(r.lng),
+            user=r.user,
+            created_at=created_iso,
+        )
+        result.append(dto_out)
+
+    return result
 
 
 def post_comment_service(
     db: Session,
     dto: CommentCreateDTO
-) -> bool:
+):
     """
     Creates and saves a comment in the database
     """
@@ -90,17 +88,16 @@ def post_comment_service(
             geom=geom_point
         )
     except Exception as e:
-        log_error(Source.comment_service, f'Could not create CommentModel: {repr(e)}')
-        return False
+        log_error(Source.comment_service, f'Could not translate from CommentCreateDTO to CommentModel: {repr(e)}')
+        raise CommentConversionException
 
     repo = CommentRepository(db)
     try:
         repo.create(comment)
         db.commit()
         db.refresh(comment)
-        return True
 
     except Exception as e:
         db.rollback()
-        log_error(Source.comment_service, repr(e))
+        log_error(Source.comment_service, f'Exception writing to database: {repr(e)}')
         raise
