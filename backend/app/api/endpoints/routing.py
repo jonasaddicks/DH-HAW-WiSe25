@@ -18,4 +18,4 @@ async def calculate_routes(
 
     start = (start_lat, start_lng)
     end = (end_lat, end_lng)
-    return RoutingService.calculate_routes_service(start, end)
+    return await RoutingService.calculate_routes_service(start, end)

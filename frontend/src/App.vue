@@ -33,6 +33,7 @@ export default {
       }
     },
     async calculateRoutes() {
+      this.showConfirmationPopup = false; // Popup schließen
       try {
         const response = await fetch(
           `api/routing/route?start_lat=${this.startLat}&start_lng=${this.startLng}&end_lat=${this.endLat}&end_lng=${this.endLng}`
@@ -49,24 +50,42 @@ export default {
       }
     },
     onMapClick(event) {
-      // Wenn bereits Routen berechnet wurden, nicht erlauben neue Punkte zu setzen
-      if (this.routes.length > 0) {
-        return;
-      }
-      if (this.tempMarker) {
-        this.cancelComment();
-      } else {
-        this.tempMarker = event.latlng;
-        this.showCommentPopup = false;
-      }
+      if (this.routes.length > 0) return;
 
+        if (this.routingMode) {
+          if (!this.routePointsSet.start) {
+            this.startLat = event.latlng.lat;
+            this.startLng = event.latlng.lng;
+            this.routePointsSet.start = true;
+          } else if (!this.routePointsSet.end) {
+            this.endLat = event.latlng.lat;
+            this.endLng = event.latlng.lng;
+            this.routePointsSet.end = true;
+            this.showConfirmationPopup = true;
+          }
+        } else {
+          // temporärer Marker für Kommentare
+          if (this.tempMarker) {
+            this.cancelComment();
+          } else {
+            this.tempMarker = event.latlng;
+            this.showCommentPopup = false;
+          }
+        }
     },
     setStart() {
-      return;
-      // Für später: Startpunkt für Routing setzen
-      // this.startLat = this.tempMarker.lat;
-      // this.startLng = this.tempMarker.lng;
-      // this.routePointsSet.start = true;
+      this.startLat = this.tempMarker.lat;
+      this.startLng = this.tempMarker.lng;
+      this.routePointsSet.start = true;
+      this.routingMode = true;
+      this.tempMarker = null;
+    },
+    resetRouting() {
+      this.showConfirmationPopup = false;
+      this.routePointsSet = { start: false, end: false };
+      this.routes = [];
+      this.selectedRoute = null;
+      this.routingMode = false;
     },
     openCommentPopup() {
       this.showCommentPopup = true;
@@ -90,7 +109,7 @@ export default {
     },
     getCommentIcon() {
       return L.divIcon({
-        html: '<span style="font-size: 36px; line-height: 1;">📍</span>',
+        html: '<span style="font-size: 36px; line-height: 1;">💬</span>',
         iconSize: [36, 36],
         iconAnchor: [18, 36],
         popupAnchor: [0, -36],
@@ -125,9 +144,11 @@ export default {
       selectedRoute: null,
       searchRadius: 2000,
       showSuggestions: false,
+      routingMode: false,
       tempMarker: null,
       commentText: '',
       showCommentPopup: false,
+      showConfirmationPopup: false,
       // Routing-Punkte für Beispielroute
       startLat: 53.556548,
       startLng: 10.022222,
@@ -225,6 +246,14 @@ export default {
           </l-popup>
         </l-polyline>
 
+        <!-- Strartpunkt -->
+        <l-marker v-if="routePointsSet.start && routes.length === 0" :lat-lng="[startLat, startLng]">
+          <l-popup>Startpunkt</l-popup>
+        </l-marker>
+        <!-- Endpunkt -->
+        <l-marker v-if="routePointsSet.end && routes.length === 0" :lat-lng="[endLat, endLng]" :icon="getEndIcon()">
+          <l-popup>Ziel</l-popup>
+        </l-marker>
 
         <!-- Route Start/End Marker für alle Routen -->
         <l-marker v-for="route in routes" :key="'route-start-' + route.route_id" :lat-lng="[route.start.lat, route.start.lng]">
@@ -240,6 +269,13 @@ export default {
       <div class="comment-popup-buttons">
         <button @click="cancelComment">Abbrechen</button>
         <button @click="saveComment">Speichern</button>
+      </div>
+    </div>
+      <!-- Auswahl bestätigen Popup-->
+    <div v-if="showConfirmationPopup" class="confirmation-popup"><div class="confirmation-popup-buttons">
+      <p>Route berechnen?</p>
+      <button @click="resetRouting">Abbrechen</button>
+      <button @click="calculateRoutes">Bestätigen</button>
       </div>
     </div>
   </div>
@@ -385,6 +421,42 @@ export default {
 }
 
 .comment-popup-buttons button:last-child {
+  background: #2196F3;
+  color: white;
+}
+.confirmation-popup {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.confirmation-popup p {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.confirmation-popup-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirmation-popup-buttons button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirmation-popup-buttons button:last-child {
   background: #2196F3;
   color: white;
 }

@@ -1,4 +1,5 @@
 from app.dtos import RoutingResponse, RouteSegment
+from app.external.external_routing_services import fetch_osrm_routes
 import math
 
 
@@ -61,10 +62,19 @@ MOCK_ROUTES = [
 ]
 
 
-def calculate_routes_service(
+async def calculate_routes_service(
         start: tuple[float, float],
         end: tuple[float, float]
 ) -> list[RoutingResponse]:
+    
+    route = await fetch_osrm_routes(start, end)
+    if route:
+        return route
+    return []
+
+
+def return_mock_routes():
+
     """
     Berechnet mögliche Routen zwischen Start und Ziel.
     Für POC: Gibt Mock-Routes zurück.
@@ -99,10 +109,3 @@ def calculate_routes_service(
         routes_result.append(route_response)
     
     return routes_result
-    
-    # Später: z.B. externe API aufrufen
-    # response = requests.get(f"https://api.openrouteservice.org/v2/directions/foot", params={
-    #     "start": f"{start[1]},{start[0]}",  # lng,lat (ORS Format)
-    #     "end": f"{end[1]},{end[0]}",
-    # })
-    # return parse_ors_response(response)
