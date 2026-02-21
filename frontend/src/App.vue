@@ -95,9 +95,34 @@ export default {
       this.showCommentPopup = false;
       this.commentText = '';
     },
-    saveComment() {
+    async saveComment() {
       // TODO: Logik kommt später
       console.log('Kommentar:', this.commentText, 'bei', this.tempMarker);
+      try {
+        const response = await fetch(
+          `api/comments/post`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              text: this.commentText,
+              lat: this.tempMarker.lat,
+              lng: this.tempMarker.lng,
+              user_id: 1 // Wie war das mit den User-IDs?
+            })
+          }
+        );
+        
+        if (response.ok) {
+          this.response = await response.json();
+          console.log("Kommentar gespeichert:", this.response);
+        } else {
+          console.error("Fehler beim Speichern des Kommentars:", response.status);
+        }
+      } catch (error) {
+        console.error("API-Fehler:", error);
+      }
       this.cancelComment();
     },
     selectRoute(route) {
