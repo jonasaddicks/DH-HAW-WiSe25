@@ -1,5 +1,6 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
+from typing import Annotated
 
 from app.db import get_db
 from app.dtos import CommentResponseDTO, CommentCreateDTO, CommentRequestDTO
@@ -11,7 +12,7 @@ router = APIRouter()
 
 @router.get("/at", response_model=list[CommentResponseDTO])
 async def get_comments_at(
-    dto: CommentRequestDTO,
+    dto: Annotated[CommentRequestDTO, Query()],
     db: Session = Depends(get_db),
 ):
     """
