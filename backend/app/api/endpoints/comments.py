@@ -24,7 +24,7 @@ async def get_comments_at(
 
     try:
         result = CommentService.get_comments_at_service(db, dto)
-        log_info(Source.endpoint_comment, '/at: success')
+        log_info(Source.endpoint_comment, f'/at: success - returning {len(result)} comments')
         return result
 
     except Exception as e:

@@ -109,7 +109,7 @@ export default {
     },
     getCommentIcon() {
       return L.divIcon({
-        html: '<span style="font-size: 36px; line-height: 1;">💬</span>',
+        html: '<span style="font-size: 36px; line-height: 1;">👁️‍🗨️</span>',
         iconSize: [36, 36],
         iconAnchor: [18, 36],
         popupAnchor: [0, -36],
