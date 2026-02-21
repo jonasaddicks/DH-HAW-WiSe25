@@ -96,8 +96,6 @@ export default {
       this.commentText = '';
     },
     async saveComment() {
-      // TODO: Logik kommt später
-      console.log('Kommentar:', this.commentText, 'bei', this.tempMarker);
       try {
         const response = await fetch(
           `api/comments/post`, {
@@ -109,7 +107,7 @@ export default {
               text: this.commentText,
               lat: this.tempMarker.lat,
               lng: this.tempMarker.lng,
-              user_id: 1 // Wie war das mit den User-IDs?
+              user_id: 1
             })
           }
         );
@@ -124,6 +122,7 @@ export default {
         console.error("API-Fehler:", error);
       }
       this.cancelComment();
+      this.loadComments(); // Kommentare neu laden, damit der neue Kommentar angezeigt wird
     },
     selectRoute(route) {
       this.selectedRoute = route;
@@ -156,6 +155,11 @@ export default {
       }
       this.showSuggestions = false;
     },
+    onMapMoveEnd(event){
+      const mapCenter = event.target.getCenter();
+      this.center = [mapCenter.lat, mapCenter.lng];
+      this.loadComments();
+    }
   },
   async mounted() {
     await this.loadComments();
@@ -174,7 +178,6 @@ export default {
       commentText: '',
       showCommentPopup: false,
       showConfirmationPopup: false,
-      // Routing-Punkte für Beispielroute
       startLat: 53.556548,
       startLng: 10.022222,
       endLat: 53.554763,
@@ -197,6 +200,7 @@ export default {
         v-model:zoom="zoom" 
         :center="center"
         @click="onMapClick"
+        @moveend="onMapMoveEnd"
         style="border: 1px solid #ccc;"
       >
         <l-tile-layer
