@@ -15,3 +15,7 @@ html, body {
   justify-content: center;
   align-items: center;
 }
+:root {
+  --color-primary: #179f95;
+  --color-accent: #f07814;
+}
