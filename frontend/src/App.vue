@@ -2,6 +2,9 @@
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import {LMap, LMarker, LPopup, LTileLayer, LPolyline} from "@vue-leaflet/vue-leaflet";
+import ConfirmationPopup from './components/ConfirmationPopup.vue';
+import CommentPopup from './components/CommentPopup.vue';
+import { fetchComments, postComment, fetchRoutes } from './api.js';
 
 export default {
   components: {
@@ -10,6 +13,8 @@ export default {
     LMap,
     LTileLayer,
     LPolyline,
+    ConfirmationPopup,
+    CommentPopup
   },
   methods: {
     async loadComments() {
@@ -18,16 +23,8 @@ export default {
         const lng = this.center[1];
         const radius = this.searchRadius;
         
-        const response = await fetch(
-          `api/comments/at?lat=${lat}&lng=${lng}&radius=${radius}`
-        );
-        
-        if (response.ok) {
-          this.comments = await response.json();
-          console.log("Kommentare geladen:", this.comments);
-        } else {
-          console.error("Fehler beim Laden:", response.status);
-        }
+      this.comments = await fetchComments(lat, lng, radius);
+
       } catch (error) {
         console.error("API-Fehler:", error);
       }
@@ -35,16 +32,7 @@ export default {
     async calculateRoutes() {
       this.showConfirmationPopup = false; // Popup schließen
       try {
-        const response = await fetch(
-          `api/routing/route?start_lat=${this.startLat}&start_lng=${this.startLng}&end_lat=${this.endLat}&end_lng=${this.endLng}`
-        );
-        
-        if (response.ok) {
-          this.routes = await response.json();
-          console.log("Routen berechnet:", this.routes);
-        } else {
-          console.error("Fehler beim Laden der Routen:", response.status);
-        }
+        this.routes = await fetchRoutes(this.startLat, this.startLng, this.endLat, this.endLng);
       } catch (error) {
         console.error("API-Fehler:", error);
       }
@@ -97,27 +85,7 @@ export default {
     },
     async saveComment() {
       try {
-        const response = await fetch(
-          `api/comments/post`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              text: this.commentText,
-              lat: this.tempMarker.lat,
-              lng: this.tempMarker.lng,
-              user_id: 1
-            })
-          }
-        );
-        
-        if (response.ok) {
-          this.response = await response.json();
-          console.log("Kommentar gespeichert:", this.response);
-        } else {
-          console.error("Fehler beim Speichern des Kommentars:", response.status);
-        }
+        await postComment(this.commentText,this.tempMarker.lat,this.tempMarker.lng,1); // Für Prototypen nur hardgecodete 1
       } catch (error) {
         console.error("API-Fehler:", error);
       }
@@ -178,10 +146,10 @@ export default {
       commentText: '',
       showCommentPopup: false,
       showConfirmationPopup: false,
-      startLat: 53.556548,
-      startLng: 10.022222,
-      endLat: 53.554763,
-      endLng: 10.020078,
+      startLat: null,
+      startLng: null,
+      endLat: null,
+      endLng: null,
       routePointsSet: {
         start: false,
         end: false
@@ -238,10 +206,10 @@ export default {
         <!-- Kommentare als Marker -->
         <l-marker v-for="comment in comments" :key="'comment-' + comment.id" :lat-lng="[comment.lat, comment.lng]" :icon="getCommentIcon()">
           <l-popup>
-            <div style="font-size: 12px;">
+            <div class="comment-popup-content">
               <strong>{{ comment.user }}</strong><br>
               <em>{{ comment.created_at }}</em><br>
-              <p style="margin: 5px 0;">{{ comment.text }}</p>
+              <p class="comment-popup-text">{{ comment.text }}</p>
             </div>
           </l-popup>
         </l-marker>
@@ -249,10 +217,8 @@ export default {
         <!-- Temporärer Marker -->
         <l-marker v-if="tempMarker" :lat-lng="tempMarker">
           <l-popup :options="{ autoClose: false, closeOnClick: false }">
-            <div style="font-size: 14px;">
+            <div class="temp-popup-buttons">
               <button @click="openCommentPopup">Kommentar hinterlassen</button>
-            </div>
-            <div style="font-size: 14px;">
               <button @click="setStart">Route hier beginnen</button>
             </div>
           </l-popup>
@@ -275,38 +241,18 @@ export default {
           </l-popup>
         </l-polyline>
 
-        <!-- Strartpunkt -->
-        <l-marker v-if="routePointsSet.start && routes.length === 0" :lat-lng="[startLat, startLng]">
-          <l-popup>Startpunkt</l-popup>
-        </l-marker>
+        <!-- Startpunkt -->
+        <l-marker v-if="routePointsSet.start && routes.length === 0" :lat-lng="[startLat, startLng]"><l-popup>Startpunkt</l-popup></l-marker>
         <!-- Endpunkt -->
-        <l-marker v-if="routePointsSet.end && routes.length === 0" :lat-lng="[endLat, endLng]" :icon="getEndIcon()">
-          <l-popup>Ziel</l-popup>
-        </l-marker>
+        <l-marker v-if="routePointsSet.end && routes.length === 0" :lat-lng="[endLat, endLng]" :icon="getEndIcon()"><l-popup>Ziel</l-popup></l-marker>
 
         <!-- Route Start/End Marker für alle Routen -->
-        <l-marker v-for="route in routes" :key="'route-start-' + route.route_id" :lat-lng="[route.start.lat, route.start.lng]">
-        </l-marker>
-
-        <l-marker v-for="route in routes" :key="'route-end-' + route.route_id" :lat-lng="[route.end.lat, route.end.lng]" :icon="getEndIcon()">
-        </l-marker>
+        <l-marker v-for="route in routes" :key="'route-start-' + route.route_id" :lat-lng="[route.start.lat, route.start.lng]"></l-marker>
+        <l-marker v-for="route in routes" :key="'route-end-' + route.route_id" :lat-lng="[route.end.lat, route.end.lng]" :icon="getEndIcon()"></l-marker>
       </l-map>
     </div>
-      <!-- Kommentar Popup -->
-    <div v-if="showCommentPopup" class="comment-popup">
-      <textarea v-model="commentText" placeholder="Kommentar eingeben..." rows="4"></textarea>
-      <div class="comment-popup-buttons">
-        <button @click="cancelComment">Abbrechen</button>
-        <button @click="saveComment">Speichern</button>
-      </div>
-    </div>
-      <!-- Auswahl bestätigen Popup-->
-    <div v-if="showConfirmationPopup" class="confirmation-popup"><div class="confirmation-popup-buttons">
-      <p>Route berechnen?</p>
-      <button @click="resetRouting">Abbrechen</button>
-      <button @click="calculateRoutes">Bestätigen</button>
-      </div>
-    </div>
+    <CommentPopup v-model="commentText" :visible="showCommentPopup" @save="saveComment" @cancel="cancelComment"/>
+    <ConfirmationPopup :visible="showConfirmationPopup" @confirm="calculateRoutes" @cancel="resetRouting"/>
   </div>
 </template>
 
@@ -357,6 +303,9 @@ export default {
   height: 65px !important;
   line-height: 65px !important;
   font-size: 28px !important;
+}
+.map-wrapper :deep(.leaflet-popup-pane) {
+  z-index: 1100;
 }
 .search-bar {
   position: absolute;
@@ -412,81 +361,32 @@ export default {
   justify-content: center;
   box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
-.comment-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  background: white;
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  z-index: 1000;
-}
 
-.comment-popup textarea {
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  font-size: 14px;
-  resize: none;
+.comment-popup-content{
+  font-size: 12px;
 }
-
-.comment-popup-buttons {
+.comment-popup-text {
+  margin: 5px 0;
+}
+.temp-popup-buttons {
   display: flex;
   gap: 8px;
   margin-top: 10px;
   justify-content: flex-end;
 }
 
-.comment-popup-buttons button {
-  padding: 8px 16px;
-  border-radius: 6px;
+.temp-popup-buttons button {
+  padding: 4px 8px;
+  border-radius: 3px;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-}
-
-.comment-popup-buttons button:last-child {
-  background: #2196F3;
+  font-size: 12px;
+  background: var(--color-primary);
   color: white;
 }
-.confirmation-popup {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  background: white;
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  z-index: 1000;
-}
 
-.confirmation-popup p {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-}
-
-.confirmation-popup-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.confirmation-popup-buttons button {
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.confirmation-popup-buttons button:last-child {
-  background: #2196F3;
+.temp-popup-buttons button:last-child {
+  background: var(--color-accent);
   color: white;
 }
 </style>
