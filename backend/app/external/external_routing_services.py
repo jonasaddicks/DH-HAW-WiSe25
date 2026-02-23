@@ -4,7 +4,7 @@ from app.dtos import RoutingResponse, RouteSegment
 from app.logging.logger import log_error, log_info
 from app.logging.module_source_enum import Source
 
-ORS_URL = os.environ.get("ORS_URL", "https://routing.openstreetmap.de/routed-foot")
+OSRM_URL = os.environ.get("OSRM_URL", "https://routing.openstreetmap.de/routed-foot")
 
 
 def _decode_polyline(polyline: str) -> list[dict]:
@@ -40,7 +40,7 @@ async def fetch_osrm_routes(
     :param end: (lat, lng)
     """
     coords = f"{start[1]},{start[0]};{end[1]},{end[0]}"
-    url = f"{ORS_URL}/route/v1/foot/{coords}"
+    url = f"{OSRM_URL}/route/v1/foot/{coords}"
     params = {
         "overview": "full",
         "geometries": "polyline",

@@ -23,9 +23,8 @@ services:
       - "127.0.0.1:8000:8000" # Temporary for testing
     environment:
       DATABASE_URL: "postgresql://postgresql_user:public_prototype@database_postgresql:5432/rheumamap"
-      ORS_URL: "https://routing.openstreetmap.de/routed-foot"
+      OSRM_URL: "https://routing.openstreetmap.de/routed-foot"
       OVERPASS_URL: "TODO"
-      TILESERVER_URL: "TODO"
     volumes:
       - ./backend:/app
     depends_on:
