@@ -36,7 +36,7 @@ export default {
       this.showConfirmationPopup = false; // Popup schließen
       try {
         const response = await fetch(
-          `api/routing/route?start_lat=${this.startLat}&start_lng=${this.startLng}&end_lat=${this.endLat}&end_lng=${this.endLng}`
+          `api/routing/route?user_id=1&start_lat=${this.startLat}&start_lng=${this.startLng}&end_lat=${this.endLat}&end_lng=${this.endLng}`
         );
         
         if (response.ok) {
