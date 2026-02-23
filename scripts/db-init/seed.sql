@@ -34,7 +34,15 @@ ON CONFLICT (user_id) DO NOTHING;
 -- PREFS FOR USER 1
 INSERT INTO user_prefs (user_id, prefs)
 VALUES
-    (1, '{"TODO":"todo"}'::jsonb)
+    (1,
+     '{
+        "w_stairs": 0.2,
+        "w_flat": 1.5,
+        "w_shadow": 1.8,
+        "w_seats": 1.7,
+        "w_weather": 1.2
+    }'::jsonb
+    )
 ON CONFLICT (user_id) DO NOTHING;
 
 
@@ -48,7 +56,15 @@ ON CONFLICT (user_id) DO NOTHING;
 -- PREFS FOR USER 2
 INSERT INTO user_prefs (user_id, prefs)
 VALUES
-    (2, '{"TODO":"todo"}'::jsonb)
+    (2,
+     '{
+        "w_stairs": 1.5,
+        "w_flat": 1.1,
+        "w_shadow": 1.1,
+        "w_seats": 1.4,
+        "w_weather": 0.2
+    }'::jsonb
+    )
 ON CONFLICT (user_id) DO NOTHING;
 
 
@@ -62,7 +78,15 @@ ON CONFLICT (user_id) DO NOTHING;
 -- PREFS FOR USER 3
 INSERT INTO user_prefs (user_id, prefs)
 VALUES
-    (3, '{"TODO":"todo"}'::jsonb)
+    (3,
+     '{
+        "w_stairs": 0.2,
+        "w_flat": 0.1,
+        "w_shadow": 0.4,
+        "w_seats": 0.3,
+        "w_weather": 0.1
+    }'::jsonb
+    )
 ON CONFLICT (user_id) DO NOTHING;
 
 
@@ -71,10 +95,10 @@ ON CONFLICT (user_id) DO NOTHING;
 INSERT INTO comment (user_id, text, geom)
 VALUES
     (1, 'Rampe ist zu steil, schwer zu erklimmen.', ST_SetSRID(ST_MakePoint(10.021971, 53.556073), 4326)),
-    (1, 'Ich bin hier hingefallen', ST_SetSRID(ST_MakePoint(10.022068, 53.556458), 4326)),
-    (2, 'Der Besitzer hat mich komisch angestarrt', ST_SetSRID(ST_MakePoint(10.021971, 53.556073), 4326)),
+    (1, 'Man hat mich hier rein geschubst >:(', ST_SetSRID(ST_MakePoint(9.995209, 53.555059), 4326)),
+    (2, 'Der Besitzer hat mich komisch angestarrt', ST_SetSRID(ST_MakePoint(9.984276, 53.556614), 4326)),
     (2, 'Bei Regen sehr glatt :(', ST_SetSRID(ST_MakePoint(10.020262, 53.555697), 4326)),
     (2, 'Hervorragende Zugänglichkeit und hilfreiche Mitarbeiter!', ST_SetSRID(ST_MakePoint(10.022068, 53.556458), 4326)),
-    (3, 'Kostenlose Parkplätze für Menschen mit Behinderung', ST_SetSRID(ST_MakePoint(10.020262, 53.555697), 4326)),
+    (3, 'Kostenlose Parkplätze für Menschen mit Behinderung', ST_SetSRID(ST_MakePoint(10.001363, 53.573406), 4326)),
     (3, 'Aufzug funktioniert, sehr sauber', ST_SetSRID(ST_MakePoint(10.021500, 53.556700), 4326))
 ON CONFLICT (comment_id) DO NOTHING;
