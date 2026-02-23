@@ -24,7 +24,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgresql_user:public_prototype@database_postgresql:5432/rheumamap"
       OSRM_URL: "https://routing.openstreetmap.de/routed-foot"
-      OVERPASS_URL: "TODO"
+      OVERPASS_URL: "http://overpass-api.de/api/interpreter"
     volumes:
       - ./backend:/app
     depends_on:
