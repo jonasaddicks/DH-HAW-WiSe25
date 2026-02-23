@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Tuple
+from typing import List
 
 
 class RouteSegment(BaseModel):
@@ -7,17 +7,23 @@ class RouteSegment(BaseModel):
     lat: float
     lng: float
 
-
-class RoutingResponse(BaseModel):
-    """Eine berechnete Route"""
-    route_id: int
-    name: str
+class Route(BaseModel):
     distance_m: float
     duration_min: int
-    difficulty: str  # 'easy', 'medium', 'hard'
     start: RouteSegment
     end: RouteSegment
     waypoints: List[RouteSegment]
     
     class Config:
         from_attributes = True
+
+class RoutingResponse(BaseModel):
+    score: float
+    route: Route
+
+class RoutingRequest(BaseModel):
+    user_id: int
+    start_lat: float
+    start_lng: float
+    end_lat: float
+    end_lng: float
