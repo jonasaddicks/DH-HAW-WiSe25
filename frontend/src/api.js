@@ -30,5 +30,16 @@ export async function fetchRoutes(user_id,startLat, startLng, endLat, endLng) {
         console.error("Fehler beim Berechnen der Route:", response.status);
         return [];
     }
-    return response.json();
+    const data = await response.json();
+    // Flatten RoutingResponse[] ({ score, route: { ... } }) into the shape the template expects
+    return data.map((item, index) => ({
+        route_id: index + 1,
+        name: `Route ${index + 1}`,
+        score: item.score * 10,
+        distance_m: item.route.distance_m,
+        duration_min: item.route.duration_min,
+        start: item.route.start,
+        end: item.route.end,
+        waypoints: item.route.waypoints,
+    }));
 }

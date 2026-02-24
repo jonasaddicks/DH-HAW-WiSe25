@@ -238,7 +238,7 @@ export default {
         >
           <l-popup>
             <strong>{{ route.name }}</strong><br>
-            {{ route.distance_m }}m | {{ route.duration_min }}min | Schwierigkeit: {{ route.difficulty }}
+            {{ route.distance_m }}m | {{ route.duration_min }}min | Score: {{ route.score.toFixed(2) }}
           </l-popup>
         </l-polyline>
 
