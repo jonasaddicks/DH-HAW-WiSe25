@@ -33,6 +33,7 @@ export default {
       this.showConfirmationPopup = false; // Popup schließen
       try {
         this.routes = await fetchRoutes(1,this.startLat, this.startLng, this.endLat, this.endLng); // Für Prototypen nur hardgecodete 1 als user_id
+        this.selectedRoute = this.routes[0] ?? null;
       } catch (error) {
         console.error("API-Fehler:", error);
         this.routes = [];
@@ -97,7 +98,7 @@ export default {
       this.selectedRoute = route;
     },
     getRouteColor(routeId) {
-      const colors = ['blue', 'purple', 'green'];
+      const colors = ['green', 'orange', 'red'];
       return colors[routeId - 1] || 'blue';
     },
     getCommentIcon() {
@@ -209,6 +210,7 @@ export default {
         <!-- Buttons unten links -->
         <div class="leaflet-bottom leaflet-left" style="pointer-events: auto;">
           <div class="leaflet-control">
+            <button class="weather-btn">🌥️</button>
             <button class="map-btn">📝</button>
             <button class="map-btn">🏠</button>
           </div>
@@ -371,6 +373,20 @@ export default {
   align-items: center;
   justify-content: center;
   box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+}
+
+.weather-btn {
+  width: 68px;
+  height: 68px;
+  background: transparent;
+  border: none;
+  font-size: 60px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+  margin-bottom: 12px;
 }
 
 .comment-popup-content{
