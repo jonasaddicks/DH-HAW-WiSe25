@@ -4,7 +4,7 @@ from shapely.geometry import Point
 
 from app.dtos import CommentResponseDTO, CommentCreateDTO, CommentRequestDTO
 from app.exceptions import CommentConversionException
-from app.logging import log_error, Source
+from app.logging import log_error, Source, log_debug
 from app.model import CommentModel
 from app.repositories import CommentRepository
 
@@ -16,8 +16,10 @@ def get_comments_at_service(
     """
     Returns a list of all comments in a specified area
     """
+
     repo = CommentRepository(db)
     rows = repo.get_comments_in_radius(dto.lng, dto.lat, dto.radius)
+    log_debug(Source.comment_service, f'Found {len(rows)} comments')
 
     result: list[CommentResponseDTO] = []
     for r in rows:
@@ -44,6 +46,8 @@ def post_comment_service(
     """
     Creates and saves a comment in the database
     """
+
+    log_debug(Source.external_overpass_services, f'Creating new comment "{dto.text}" at (lng;lat): {dto.lng};{dto.lat} from {dto.user_id}')
     try:
         geom_point = from_shape(Point(dto.lng, dto.lat), srid=4326)  # PostGIS: POINT(lon lat)
         comment = CommentModel(
@@ -62,6 +66,6 @@ def post_comment_service(
         db.refresh(comment)
 
     except Exception as e:
+        log_error(Source.comment_service, f'Exception writing to database: {repr(e)} - rollback')
         db.rollback()
-        log_error(Source.comment_service, f'Exception writing to database: {repr(e)}')
         raise

@@ -1,5 +1,8 @@
+import json
 import random
+
 import pyproj
+from httpx import HTTPStatusError
 
 from sqlalchemy.orm import Session
 from shapely.geometry import LineString
@@ -34,12 +37,14 @@ async def calculate_routes_service(
         route_response: list[RoutingResponse] = []
         for route in routes:
 
+            log_debug(Source.routing_service, f'scoring route')
             route_meta: RouteMeta = await RouteMeta.create(route)
             evaluation_weights: EvaluationWeights = EvaluationWeights(user_id=dto.user_id, db=db)
             score: float = _calculate_score(
                 route_meta=route_meta,
                 evaluation_weights=evaluation_weights
             )
+            log_debug(Source.routing_service, f'Score sum: {score}')
             route_response.append(
                 RoutingResponse(
                     score=score,
@@ -68,13 +73,22 @@ class RouteMeta:
 
     @classmethod
     async def create(cls, route: Route) -> "RouteMeta":
+        """
+        Retrieve and process all metadata associated with a route.
+        """
+
         route_polygon = _create_route_polygon(route.waypoints)
 
         k_stairs = random.random() # mock
         k_flat = random.random() # mock
         k_shadow = random.random() # mock
 
-        number_seats: int = await OverpassServices.get_seats(route_polygon)
+        try:
+            number_seats: int = await OverpassServices.get_seats(route_polygon)
+        except HTTPStatusError as e:
+            log_warning(Source.routing_service, f'Overpass API error - request probably too big: {repr(e)}')
+            log_warning(Source.routing_service, f'Mocking value for number_seats instead')
+            number_seats: int = random.randint(0, 10) # mock number_seats if overpass fails
         seats_per_kilometer: float = number_seats / (route.distance_m / 1000)
         s_half: float = 2
 
@@ -116,18 +130,26 @@ def _calculate_score(
         route_meta: RouteMeta,
         evaluation_weights: EvaluationWeights
 ) -> float:
-    score: float = 0
-    score += route_meta.k_stairs * evaluation_weights.w_stairs
-    score += route_meta.k_flat * evaluation_weights.w_flat
-    score += route_meta.k_shadow * evaluation_weights.w_shadow
-    score += route_meta.k_seats * evaluation_weights.w_seats
-    score += route_meta.k_weather * evaluation_weights.w_weather
-    return score
+    """
+    Calculate and return a score for a route.
+    """
+
+    score_stairs = route_meta.k_stairs * evaluation_weights.w_stairs
+    score_flat = route_meta.k_flat * evaluation_weights.w_flat
+    score_shadow = route_meta.k_shadow * evaluation_weights.w_shadow
+    score_seats = route_meta.k_seats * evaluation_weights.w_seats
+    score_weather = route_meta.k_weather * evaluation_weights.w_weather
+    log_debug(Source.routing_service, f'All scores: score_stairs: {score_stairs}, score_flat: {score_flat}, score_shadow: {score_shadow}, score_seats: {score_seats}, score_weather: {score_weather}')
+    return score_stairs + score_flat + score_shadow + score_seats + score_weather
 
 def _create_route_polygon(
         route_points: list[RouteSegment],
         buffer_m: float = 13
     )-> Polygon:
+    """
+    Create a polygon from a list of route segments.
+    """
+
     line = LineString([(segment.lng, segment.lat) for segment in route_points])
     proj_wgs84 = pyproj.Proj('epsg:4326')
     proj_utm = pyproj.Proj(proj='utm', zone=32, ellps='WGS84')

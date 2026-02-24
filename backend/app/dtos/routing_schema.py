@@ -3,11 +3,16 @@ from typing import List
 
 
 class RouteSegment(BaseModel):
-    """Ein einzelner Punkt auf der Route"""
+    """
+    Represents a single point on a route
+    """
     lat: float
     lng: float
 
 class Route(BaseModel):
+    """
+    A route built from a list of route segments
+    """
     distance_m: float
     duration_min: int
     start: RouteSegment

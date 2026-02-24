@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, TIMESTAMP, func
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 
 from .base import Base

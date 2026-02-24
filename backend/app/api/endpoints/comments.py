@@ -5,7 +5,7 @@ from typing import Annotated
 from app.db import get_db
 from app.dtos import CommentResponseDTO, CommentCreateDTO, CommentRequestDTO
 from app.exceptions import CommentConversionException
-from app.logging import log_info, Source, log_debug, log_error, log_warning
+from app.logging import log_info, Source, log_error, log_warning
 from app.service import CommentService
 
 router = APIRouter()
@@ -19,12 +19,10 @@ async def get_comments_at(
     Collects all available comments around a given point in a given radius.
     """
 
-    log_info(Source.endpoint_comment, '/at: called')
-    log_debug(Source.endpoint_comment, f'/at: {dto}')
+    log_info(Source.endpoint_comment, f'/at: {dto}')
 
     try:
         result = CommentService.get_comments_at_service(db, dto)
-        log_info(Source.endpoint_comment, f'/at: success - returning {len(result)} comments')
         return result
 
     except Exception as e:
@@ -44,12 +42,10 @@ async def post_comment(
     Creates and saves a comment by the specified user at the given location.
     """
 
-    log_info(Source.endpoint_comment, '/post: called')
-    log_debug(Source.endpoint_comment, f'/post: {dto}')
+    log_info(Source.endpoint_comment, f'/post: {dto}')
 
     try:
         CommentService.post_comment_service(db, dto)
-        log_info(Source.endpoint_comment, '/post: success')
 
     except CommentConversionException as e:
         log_warning(Source.endpoint_comment, f'/post: external failure: {repr(e)}')

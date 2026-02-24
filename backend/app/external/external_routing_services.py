@@ -9,6 +9,9 @@ from app.logging import log_error, Source, log_warning, log_debug
 OSRM_URL = os.environ.get("OSRM_URL", "https://routing.openstreetmap.de/routed-foot")
 
 def _parse_osrm_route(route) -> list[RouteSegment]:
+    """
+    Translate the provided osrm route (geojson) into a list of route segments.
+    """
     waypoints: list[RouteSegment] = []
     coordinates = route["geometry"]["coordinates"]
     for lon, lat in coordinates:
@@ -20,6 +23,9 @@ async def fetch_osrm_routes(
     start: tuple[float, float],
     end: tuple[float, float]
 ) -> list[Route] | None:
+    """
+    Request up to 3 possible routes between the specified start and end coordinates.
+    """
 
     coords = f"{start[0]},{start[1]};{end[0]},{end[1]}"
     url = f"{OSRM_URL}/route/v1/foot/{coords}"
@@ -30,11 +36,13 @@ async def fetch_osrm_routes(
         "alternatives": "3"
     }
 
+    log_debug(Source.external_overpass_services, f'Fetching routes from {OSRM_URL}')
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(url, params=params, timeout=10)
             response.raise_for_status()
             data_raw = response.json()
+            log_debug(Source.external_routing_services, f'Received routes: {json.dumps(data_raw, indent=2)}')
 
         if data_raw.get("code") != "Ok":
             raise UnexpectedRoutingResponseException('OSRM responded with an unexpected response')
@@ -58,5 +66,5 @@ async def fetch_osrm_routes(
         return result
 
     except Exception as e:
-        log_error(Source.external_routing_services, f"OSRM failed: {repr(e)}")
+        log_error(Source.external_routing_services, f"OSRM fetching routes failed: {repr(e)}")
         return None

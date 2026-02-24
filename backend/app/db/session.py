@@ -28,7 +28,7 @@ for attempt in range(MAX_RETRIES):
         log_error(Source.db_session, f'URL: {SQLALCHEMY_DATABASE_URL} - {repr(e)}')
 else:
     log_error(Source.db_session, 'Connection to DB failed')
-    raise RuntimeError('Connection to DB failed.')
+    raise RuntimeError('Connection to DB failed')
 
 def get_db():
     db: Session = SessionLocal()
