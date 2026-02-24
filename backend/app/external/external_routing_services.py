@@ -49,8 +49,8 @@ async def fetch_osrm_routes(
                 Route(
                     distance_m=route["distance"],
                     duration_min=int(route["duration"] / 60),
-                    start=RouteSegment(lat=start[0], lng=start[1]),
-                    end=RouteSegment(lat=end[0], lng=end[1]),
+                    start=RouteSegment(lat=start[1], lng=start[0]),
+                    end=RouteSegment(lat=end[1], lng=end[0]),
                     waypoints=_parse_osrm_route(route)
                 )
             )
