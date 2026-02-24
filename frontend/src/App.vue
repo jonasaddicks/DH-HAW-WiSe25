@@ -128,6 +128,16 @@ export default {
       const mapCenter = event.target.getCenter();
       this.center = [mapCenter.lat, mapCenter.lng];
       this.loadComments();
+    },
+    formatDate(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }) + ' Uhr';
     }
   },
   async mounted() {
@@ -209,7 +219,7 @@ export default {
           <l-popup>
             <div class="comment-popup-content">
               <strong>{{ comment.user }}</strong><br>
-              <em>{{ comment.created_at }}</em><br>
+              <em>{{ formatDate(comment.created_at) }}</em><br>
               <p class="comment-popup-text">{{ comment.text }}</p>
             </div>
           </l-popup>
