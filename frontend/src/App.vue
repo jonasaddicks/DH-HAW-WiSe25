@@ -97,9 +97,8 @@ export default {
     selectRoute(route) {
       this.selectedRoute = route;
     },
-    getRouteColor(routeId) {
-      const colors = ['green', 'orange', 'red'];
-      return colors[routeId - 1] || 'blue';
+    getRouteColor(score) {
+      return `hsl(${score * 120}, 100%, 40%)`;
     },
     getCommentIcon() {
       return L.divIcon({
@@ -121,6 +120,10 @@ export default {
     },
     selectSuggestion(suggestion) {
       if (suggestion === 'Beispielroute') {
+        this.startLat = 53.556548;
+        this.startLng = 10.022222;
+        this.endLat = 53.553207;
+        this.endLng = 10.019386;
         this.calculateRoutes();
       }
       this.showSuggestions = false;
@@ -194,7 +197,7 @@ export default {
           <input type="text" placeholder="Suche" @focus="showSuggestions = true" @blur="showSuggestions = false" />
           <button class="map-btn">🔊</button>
           <div class="suggestions" v-if="showSuggestions">
-            <div class="suggestion-item" @mousedown="selectSuggestion('Beispielroute')">
+            <div class="suggestion-item" @mousedown.stop="selectSuggestion('Beispielroute')">
               Beispielroute
             </div>
           </div>
@@ -242,7 +245,7 @@ export default {
           v-for="route in routes" 
           :key="'route-' + route.route_id"
           :lat-lngs="route.waypoints.map(wp => [wp.lat, wp.lng])"
-          :color="getRouteColor(route.route_id)"
+          :color="getRouteColor(route.score)"
           :weight="selectedRoute?.route_id === route.route_id ? 5 : 3"
           :opacity="selectedRoute?.route_id === route.route_id ? 1 : 0.6"
           @click="selectRoute(route)"
@@ -250,7 +253,7 @@ export default {
         >
           <l-popup>
             <strong>{{ route.name }}</strong><br>
-            {{ route.distance_m }}m | {{ route.duration_min }}min | Score: {{ route.score.toFixed(2) }}
+            {{ route.distance_m }}m | {{ route.duration_min }}min | Score: {{ (route.score * 10).toFixed(1) }}
           </l-popup>
         </l-polyline>
 

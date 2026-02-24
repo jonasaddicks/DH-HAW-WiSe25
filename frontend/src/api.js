@@ -35,7 +35,7 @@ export async function fetchRoutes(user_id,startLat, startLng, endLat, endLng) {
     return data.map((item, index) => ({
         route_id: index + 1,
         name: `Route ${index + 1}`,
-        score: item.score * 10,
+        score: item.score,
         distance_m: item.route.distance_m,
         duration_min: item.route.duration_min,
         start: item.route.start,
