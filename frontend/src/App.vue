@@ -32,9 +32,10 @@ export default {
     async calculateRoutes() {
       this.showConfirmationPopup = false; // Popup schließen
       try {
-        this.routes = await fetchRoutes(this.startLat, this.startLng, this.endLat, this.endLng);
+        this.routes = await fetchRoutes(1,this.startLat, this.startLng, this.endLat, this.endLng); // Für Prototypen nur hardgecodete 1 als user_id
       } catch (error) {
         console.error("API-Fehler:", error);
+        this.routes = [];
       }
     },
     onMapClick(event) {

@@ -22,10 +22,13 @@ export async function postComment(text, lat, lng, user_id) {
     if (!response.ok) console.error("Fehler beim Speichern:", response.status);
 };
 
-export async function fetchRoutes(startLat, startLng, endLat, endLng) {
+export async function fetchRoutes(user_id,startLat, startLng, endLat, endLng) {
     const response = await fetch(
-          `api/routing/route?start_lat=${startLat}&start_lng=${startLng}&end_lat=${endLat}&end_lng=${endLng}`
+          `api/routing/route?user_id=${user_id}&start_lat=${startLat}&start_lng=${startLng}&end_lat=${endLat}&end_lng=${endLng}`
     );
-    if (!response.ok) console.error("Fehler beim Berechnen der Route:", response.status);
+    if (!response.ok) {
+        console.error("Fehler beim Berechnen der Route:", response.status);
+        return [];
+    }
     return response.json();
 }
