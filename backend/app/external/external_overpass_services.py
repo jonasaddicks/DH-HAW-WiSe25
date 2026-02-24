@@ -20,7 +20,7 @@ def _polygon_to_overpass(polygon):
 
 async def get_seats(route_polygon: Polygon) -> int:
     """
-    Get the number of seats inside a (route-)polygon
+    Get the number of seats inside a (route-)polygon.
     """
     poly_str = _polygon_to_overpass(route_polygon)
 

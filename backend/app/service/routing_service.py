@@ -46,8 +46,8 @@ async def calculate_routes_service(
                     route=route
                 )
             )
-        route_response.sort(key=lambda r: r.score)
-        return route_response[::3]
+        route_response.sort(key=lambda r: r.score, reverse=True)
+        return route_response[:3]
     else:
         log_warning(Source.routing_service, f'Routes are empty')
         return []
@@ -136,6 +136,7 @@ def _create_route_polygon(
     project_to_wgs84 = pyproj.Transformer.from_proj(proj_utm, proj_wgs84, always_xy=True).transform
 
     line_utm = transform(project_to_utm, line)
+    line_utm = line_utm.simplify(5, preserve_topology=False)
 
     polygon_utm = line_utm.buffer(buffer_m)
 
