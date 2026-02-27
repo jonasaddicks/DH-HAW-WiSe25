@@ -76,6 +76,11 @@ export default {
       this.routes = [];
       this.selectedRoute = null;
       this.routingMode = false;
+      this.startLat = null;
+      this.startLng = null;
+      this.endLat = null;
+      this.endLng = null;
+
     },
     openCommentPopup() {
       this.showCommentPopup = true;
@@ -186,6 +191,12 @@ export default {
         @moveend="onMapMoveEnd"
         style="border: 1px solid #ccc;"
       >
+      <!-- Zurück-Button wenn Routen aktiv -->
+        <div v-if="routes.length > 0" class="back-btn-wrapper">
+          <div class="leaflet-control">
+            <button class="back-btn" @click="resetRouting">✖️</button>
+          </div>
+        </div>
         <l-tile-layer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             layer-type="base"
@@ -364,6 +375,14 @@ export default {
   background: #f5f5f5;
 }
 
+.back-btn-wrapper {
+  position: absolute;
+  top: 88px; /* Suchleiste (ca. 68px Höhe) + 10px top + 10px gap */
+  right: 10px;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
 .map-btn {
   width: 68px;
   height: 68px;
@@ -384,6 +403,20 @@ export default {
   background: transparent;
   border: none;
   font-size: 60px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+  margin-bottom: 12px;
+}
+
+.back-btn {
+  width: 68px;
+  height: 68px;
+  background: transparent;
+  border: none;
+  font-size: 40px;
   cursor: pointer;
   display: flex;
   align-items: center;
